@@ -4,69 +4,12 @@ const inquirer = require('inquirer');
 // writing to a filesystem library
 const fs = require('fs');
 
+const generateMarkdown = require('./generateMarkdown');
+
 // buidling dynamic README file 
 
-const generateReadme = ({title, description, installation, usage, imagePath, license, contributing, tests, questions}) => 
-`<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Readme Generator</title>
-</head>
-<body>
-    <header>
-        <h1>${title}</h1>
-        <div> 
-            <h2> Table of Contents </h2>
-            <ul>
-            <li><a href="#description">Description</a></li>
-            <li><a href="#installation">installation</a></li>
-            <li><a href="#usage">Usage</a></li>
-            <li><a href="#license">license</a></li>
-            <li><a href="#contributing">Contributing</a></li>
-            <li><a href="#tests">Tests</a></li>
-            <li><a href="#questions">Questions</a></li>
-            </ul>
-        </div>
-    </header>
-    <main>
-        <section id="description">
-            <h2>Description</h2>
-            <p>${description}</p>
-        </section>
-        <section id="installation">
-            <h2>Installation</h2>
-            <p>${installation}</p>
-        </section>
-        <section id="usage">
-            <h2>Usage</h2>
-            <p>${usage}</p>
-            <img src="${imagePath}" alt="app screenshot">
-        </section>
-        <section id="license">
-        <h2>license</h2>
-        <p>${license}</p>
-    </section>
-        <section id="contributing">
-            <h2>Contributing</h2>
-            <p>${contributing}</p>
-        </section>
-        <section id="tests">
-            <h2>Tests</h2>
-            <p>${tests}</p>
-        </section>
-        <section id="questions">
-            <h2>Questions</h2>
-            <p>${questions}</p>
-        </section>
-    </main> 
-</body>
-</html>`;
+const questions = [ 
 
-inquirer
-  .prompt([
     {
         type: 'input',
         name: 'title',
@@ -98,9 +41,11 @@ inquirer
       },
 
       {
-        type: 'input',
+        type: 'list',
         name: 'license',
-        message: 'Add license information',
+        message: 'Choose a license:',
+        choices: ["Apache","GNU", "MIT","BSD 2", "BSD 3","Boost Software", "Creative Commons","Eclipse Public",
+        "GNU Affero General","GNU General","GNU Lesser","Mozilla", "Unlicensed"]
       },
 
       {
@@ -120,15 +65,30 @@ inquirer
         name: 'questions',
         message: 'enter your email address',
       },
-      
-  ])
-  .then((answers) => {
-    const readmeContent = generateReadme(answers);
 
-    fs.writeFile("README.md", readmeContent, (err) => 
-    err ? console.log(err) : console.log("successfuly created HTML file")
-    
-    )
-  });
+      {
+        type: 'input',
+        name: 'userName',
+        message: 'What is your GitHub username?',
+      },
+      
+  ];
+
+
+    function writeToFile(readmeFile, data) {
+      
+      fs.writeFile(readmeFile, data, (err) => 
+      err ? console.log(err) : console.log("successfuly created HTML file")
+    )}
+  
   
 
+// TODO: Create a function to initialize app
+function init() {
+  inquirer.prompt(questions).then((answers) => {const readmeContent = generateMarkdown(answers)
+    writeToFile("README.md", readmeContent);
+  });
+}
+
+// Function call to initialize app
+init();
